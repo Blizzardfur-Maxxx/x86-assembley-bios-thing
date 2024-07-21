@@ -32,39 +32,20 @@ process_command:
     ; Null-terminate the input string
     mov byte [di], 0
 
-    ; Compare the input to the "printmem" command
+    ; Call command processing routine from bootsector_commands.asm
     mov si, input_buffer
-    mov di, printmem_command
-    call strcmp
-    cmp ax, 0                   ; Check if strings are equal
-    je handle_printmem          ; If equal, jump to handle_printmem
+    call process_command_routine
 
-    ; If not a recognized command, display an error message
-    jmp command_error
-
-handle_printmem:
-    ; Call command handler from bootsector_commands.asm
-    call command_printmem
-
-    jmp get_input               ; Go back to getting input
-
-command_error:
-    ; Display the error message
-    mov si, error_msg
-    call print_string
-
-    jmp get_input               ; Go back to getting input
+    ; Go back to getting input
+    jmp get_input
 
 msg:
     db "Shitty Hardware Text Editor OS", 13, 10, 0   ; Our initial message to print with newline (CRLF)
 
-error_msg db "Invalid command", 13, 10, 0
-
 input_buffer_size equ 256
 input_buffer times input_buffer_size db 0
-printmem_command db "printmem", 0
 
-;; Include the helper functions from another file
+;; Include the helper functions and command processing routines
 %include "bootsector_helpers.asm"
 %include "bootsector_commands.asm"
 
