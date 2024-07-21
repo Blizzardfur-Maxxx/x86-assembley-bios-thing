@@ -27,10 +27,6 @@ get_input:
     cmp al, 13                  ; Compare AL with Enter key ASCII
     je process_command          ; If Enter is pressed, jump to process_command
 
-    ; Check for Backspace key (ASCII 8)
-    cmp al, 8                   ; Compare AL with Backspace key ASCII
-    je .backspace_key           ; If Backspace is pressed, jump to .backspace_key
-
     ; Store the character in the buffer
     stosb                       ; Store AL into [DI] and increment DI
 
@@ -39,19 +35,6 @@ get_input:
     int 0x10                    ; Call BIOS to print the char
 
     jmp .input_loop             ; Repeat the process
-
-.backspace_key:
-    cmp di, input_buffer        ; Compare DI to the start of the buffer
-    je .input_loop              ; If DI is at the start, do nothing
-
-    dec di                      ; Move DI back
-    dec di                      ; Move DI back to erase previous char
-    mov al, ' '                 ; AL = space character
-    stosb                       ; Store space in the buffer to erase character
-    mov al, 8                   ; AL = backspace character
-    stosb                       ; Store backspace to move cursor back
-
-    jmp .input_loop             ; Return to input loop
 
 process_command:
     ; Null-terminate the input string
