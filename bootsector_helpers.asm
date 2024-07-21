@@ -44,3 +44,20 @@ print_hex_digit:
     mov ah, 0x0E
     int 0x10
     ret
+
+print_char:
+    ; Print a single character in AL
+    mov ah, 0x0E
+    int 0x10
+    ret
+
+print_string:
+    ; Print a null-terminated string at SI
+.print_str:
+    lodsb                       ; Load byte from SI into AL
+    or al, al                   ; Check if end of the string
+    jz .done                    ; If end, jump to done
+    call print_char             ; Print the character
+    jmp .print_str              ; Continue printing
+.done:
+    ret

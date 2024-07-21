@@ -4,14 +4,7 @@ bits 16                         ; We're working in 16-bit mode
 start:
     cli                         ; Disable interrupts
     mov si, msg                 ; SI now points to our message
-    mov ah, 0x0E                ; Indicate BIOS we're going to print chars
-
-.print_msg:
-    lodsb                       ; Load SI into AL and increment SI [next char]
-    or al, al                   ; Check if the end of the string
-    jz get_input                ; Jump to get_input if the end
-    int 0x10                    ; Otherwise, call interrupt to print the char
-    jmp .print_msg              ; Next iteration of the loop
+    call print_string           ; Print the message
 
 get_input:
     ; Initialize input buffer
@@ -31,8 +24,7 @@ get_input:
     stosb                       ; Store AL into [DI] and increment DI
 
     ; Display the character
-    mov ah, 0x0E                ; BIOS teletype output service
-    int 0x10                    ; Call BIOS to print the char
+    call print_char             ; Print the character
 
     jmp .input_loop             ; Repeat the process
 
@@ -45,30 +37,28 @@ process_command:
     mov di, printmem_command
     call strcmp
     cmp ax, 0                   ; Check if strings are equal
-    je command_printmem         ; If equal, jump to command_printmem
+    je handle_printmem          ; If equal, jump to handle_printmem
 
-    ; Invalid command, just halt for now
-    jmp halt
+    ; If not a recognized command, display an error message
+    jmp command_error
 
-command_printmem:
-    ; Display memory bytes starting from 0x0000
-    xor si, si                  ; Start of memory (0x0000)
-    mov cx, 512                 ; Number of bytes to display
-.display_mem:
-    lodsb                       ; Load byte at [SI] into AL and increment SI
-    call print_hex              ; Print AL as hexadecimal
-    mov al, ' '                 ; Print a space after each byte
-    mov ah, 0x0E
-    int 0x10
-    loop .display_mem
+handle_printmem:
+    ; Call command handler from bootsector_commands.asm
+    call command_printmem
 
     jmp get_input               ; Go back to getting input
 
-halt:
-    hlt                         ; CPU command to halt the execution
+command_error:
+    ; Display the error message
+    mov si, error_msg
+    call print_string
+
+    jmp get_input               ; Go back to getting input
 
 msg:
     db "Shitty Hardware Text Editor OS", 13, 10, 0   ; Our initial message to print with newline (CRLF)
+
+error_msg db "Invalid command", 13, 10, 0
 
 input_buffer_size equ 256
 input_buffer times input_buffer_size db 0
@@ -76,6 +66,7 @@ printmem_command db "printmem", 0
 
 ;; Include the helper functions from another file
 %include "bootsector_helpers.asm"
+%include "bootsector_commands.asm"
 
 ;; Magic numbers
 times 510 - ($ - $$) db 0
