@@ -3,7 +3,7 @@ bits 16                         ; We're working in 16-bit mode
 
 start:
     cli                         ; Disable interrupts
-    mov si, msg                 ; SI now points to our message
+    mov si, boot_msg            ; SI now points to our message
     call print_string           ; Print the message
 
 get_input:
@@ -39,8 +39,8 @@ process_command:
     ; Go back to getting input
     jmp get_input
 
-msg:
-    db "Shitty Hardware Text Editor OS", 13, 10, 0   ; Our initial message to print with newline (CRLF)
+boot_msg:
+    db "BlizzASM OS :3", 13, 10, 0   ; Our initial message to print with newline (CRLF)
 
 input_buffer_size equ 256
 input_buffer times input_buffer_size db 0
