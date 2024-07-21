@@ -44,23 +44,3 @@ print_hex_digit:
     mov ah, 0x0E
     int 0x10
     ret
-
-parse_hex:
-    ; Parse two hexadecimal digits at SI into AX
-    xor ax, ax
-    call parse_hex_digit
-    shl al, 4
-    mov ah, al
-    call parse_hex_digit
-    add ax, ax
-    ret
-
-parse_hex_digit:
-    ; Parse one hexadecimal digit at SI into AL
-    lodsb                       ; Load byte from SI into AL
-    sub al, '0'
-    cmp al, 9
-    jbe .valid_digit
-    sub al, 7
-.valid_digit:
-    ret

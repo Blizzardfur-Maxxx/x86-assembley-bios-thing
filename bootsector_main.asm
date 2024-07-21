@@ -47,13 +47,6 @@ process_command:
     cmp ax, 0                   ; Check if strings are equal
     je command_printmem         ; If equal, jump to command_printmem
 
-    ; Compare the input to the "changemem" command
-    mov si, input_buffer
-    mov di, changemem_command
-    call strcmp
-    cmp ax, 0                   ; Check if strings are equal
-    je command_changemem        ; If equal, jump to command_changemem
-
     ; Invalid command, just halt for now
     jmp halt
 
@@ -71,17 +64,6 @@ command_printmem:
 
     jmp get_input               ; Go back to getting input
 
-command_changemem:
-    ; Extract arguments from the input buffer
-    mov si, input_buffer
-    add si, 9                   ; Skip "changemem"
-    call parse_hex              ; Parse the address
-    mov di, ax                  ; Store address in DI
-    call parse_hex              ; Parse the new byte value
-    mov [di], al                ; Change memory at address DI
-
-    jmp get_input               ; Go back to getting input
-
 halt:
     hlt                         ; CPU command to halt the execution
 
@@ -91,7 +73,6 @@ msg:
 input_buffer_size equ 256
 input_buffer times input_buffer_size db 0
 printmem_command db "printmem", 0
-changemem_command db "changemem", 0
 
 ;; Include the helper functions from another file
 %include "bootsector_helpers.asm"
