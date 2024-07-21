@@ -1,3 +1,7 @@
+; bootsector_helpers.asm
+%ifndef _BOOTSECTOR_HELPERS_ASM
+%define _BOOTSECTOR_HELPERS_ASM
+
 ;; Helper functions
 
 strcmp:
@@ -61,3 +65,5 @@ print_string:
     jmp .print_str              ; Continue printing
 .done:
     ret
+
+%endif
